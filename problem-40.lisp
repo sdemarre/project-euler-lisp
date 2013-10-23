@@ -1,0 +1,6 @@
+(in-package :project-euler)
+(defun problem-40 ()
+  (let ((table (make-array 1000100 :fill-pointer 0)))
+    (do ((i 1 (1+ i)))
+	((> (length table) 1000000) (apply #'* (mapcar #'(lambda (x) (elt table (1- x))) '(1 10 100 1000 10000 100000 1000000))))
+      (mapcar #'(lambda (x) (vector-push x table)) (number-to-digits i)))))

@@ -1,0 +1,6 @@
+(in-package :project-euler)
+(defun problem-5 (&optional (max 20))
+  (let* ((factored (mapcar #'ifactor (range 1 max)))
+	 (factors (remove-duplicates (apply #'concatenate 'list factored)))
+	 (max-powers (mapcar #'(lambda (n) (cons n (loop for f in factored maximize (count n f)))) factors)))
+    (apply #'* (loop for d in max-powers collect (expt (car d) (cdr d))))))

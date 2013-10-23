@@ -1,0 +1,5 @@
+(in-package :project-euler)
+(defun problem-34 ()
+  (let ((factorials (map 'vector #'fact (range 0 9))))
+    (flet ((fact-0-9 (i) (svref factorials i)))
+      (loop for i from 3 to 1000000 when (= i (apply #'+ (mapcar #'fact-0-9 (number-digits i)))) summing i))))

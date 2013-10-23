@@ -1,0 +1,23 @@
+(in-package :PROJECT-EULER)
+(defun continued-fraction-for-sqrt (number)
+  (let ((iroot (isqrt number)))
+    (if (= number (* iroot iroot))
+	(list iroot)
+	(let ((b iroot)
+	      (denom 1)
+	      (result (list iroot))
+	      (c 0)
+	      (rem 0))
+	  (loop until (= c (* 2 iroot)) do
+	       ;(format t "b->~a~% denom->~a~% result->~a~% c->~a~% rem->~a~%==========~%" b denom (reverse result) c rem)
+	       (setf denom (floor (- number (* b b)) denom))
+	       (setf c (floor (+ iroot b) denom))
+	       (setf rem (mod (+ iroot b) denom))
+	       (setf b (abs (- rem iroot)))
+	       (push c result))
+	  ;(format t "b->~a~% denom->~a~% result->~a~% c->~a~% rem->~a~%==========~%" b denom (reverse result) c rem)
+	  (nreverse result)))))
+
+
+(defun problem-64 (&optional (limit 10000))
+  (loop for i from 2 to limit counting (evenp (length (continued-fraction-for-sqrt i)))))

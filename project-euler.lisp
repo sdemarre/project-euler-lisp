@@ -1,0 +1,5 @@
+(in-package :project-euler)
+(defparameter *source-location* "/home/serge/src/lisp/project-euler")
+(defun read-problem-n-data (n)
+  (with-open-file (in (format nil "~a/problem-~a-data.lisp" *source-location* n))
+     (read in)))

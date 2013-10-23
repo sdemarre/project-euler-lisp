@@ -1,0 +1,13 @@
+(in-package :project-euler)
+
+(defun increasing-numbers (number-digits start-digit)
+  (if (= 1 number-digits)
+      (- 10 start-digit)
+      (loop for digit from start-digit to 9 summing (increasing-numbers (1- number-digits) digit))))
+(defun decreasing-numbers (number-digits start-digit)
+  (if (= 1 number-digits)
+      (1+ start-digit)
+      (loop for digit from start-digit downto 0 summing (decreasing-numbers (1- number-digits) digit))))
+(defun problem-113 (&optional (number-digits 101))
+  (+ (1- (increasing-numbers number-digits 0))
+     (decreasing-numbers number-digits 9)))

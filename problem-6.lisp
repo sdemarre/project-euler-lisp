@@ -1,0 +1,5 @@
+(in-package :project-euler)
+(defun problem-6 (&optional (x 100))
+  (let ((sum-squares (apply #'+ (mapcar #'square (range 1 x))))
+	(square-sum (square (apply #'+ (range 1 x)))))
+    (- square-sum sum-squares)))

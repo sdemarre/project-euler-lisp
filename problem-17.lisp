@@ -1,0 +1,46 @@
+(in-package :project-euler)
+(defun number-to-word (number)
+  (cond ((= number 1000) "one thousand")
+	((> number 99)
+	 (concatenate 'string
+		      (number-to-word (floor number 100))
+		      " hundred"
+		      (if (= 0 (mod number 100))
+			  ""
+			  (concatenate 'string " and " (number-to-word (mod number 100))))))
+	((= number 90) "ninety")
+	((= number 80) "eighty")
+	((= number 70) "seventy")
+	((= number 60) "sixty")
+	((= number 50) "fifty")
+	((= number 40) "forty")
+	((= number 30) "thirty")
+	((= number 20) "twenty")
+	((= number 19) "nineteen")
+	((= number 18) "eighteen")
+	((= number 17) "seventeen")
+	((= number 16) "sixteen")
+	((= number 15) "fifteen")
+	((= number 14) "fourteen")
+	((= number 13) "thirteen")
+	((= number 12) "twelve")
+	((= number 11) "eleven")
+	((= number 10) "ten")
+	((= number 9) "nine")
+	((= number 8) "eight")
+	((= number 7) "seven")
+	((= number 6) "six")
+	((= number 5) "five")
+	((= number 4) "four")
+	((= number 3) "three")
+	((= number 2) "two")
+	((= number 1) "one")
+	(t (concatenate 'string
+			(number-to-word (- number (mod number 10)))
+			"-"
+			(number-to-word (mod number 10))))))
+      
+
+(defun problem-17 ()
+  (loop for i from 1 to 1000 summing 
+	(length (remove-if #'(lambda (c) (position c " -")) (number-to-word i)))))

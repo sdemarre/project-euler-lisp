@@ -1,0 +1,22 @@
+(in-package :project-euler)
+
+(defun find-longest-prime-sum (prime-list sieve max)
+  (let ((sum (car prime-list))
+	(length 1)
+	(max-length 1)
+	(prime-sum 0))
+    (loop for i in (cdr prime-list) do
+	  (incf sum i)
+	  (when (> sum max) (return))
+	  (incf length)
+	  (when (prime-from-sieve-p sum sieve)
+	    (setf max-length length)
+	    (setf prime-sum sum)))
+    (list :first (car prime-list) :length max-length :sum prime-sum)))
+
+(defun problem-50 (&optional (max 1000000))
+  (let ((the-sieve (make-prime-sieve max)))
+    (car (sort (let ((the-primes (cons 0 (loop for i from 2 to max when (prime-from-sieve-p i the-sieve) collect i))))
+		 (loop for i from 1 to (length the-primes) 
+		       collect (find-longest-prime-sum (setf the-primes (cdr the-primes)) the-sieve max)))
+	       #'(lambda (x y) (> (getf x :length) (getf y :length)))))))

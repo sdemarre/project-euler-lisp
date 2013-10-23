@@ -1,0 +1,17 @@
+(in-package :project-euler)
+(defun partial-euclids (number divisor remainders)
+  (let ((remainder (mod number divisor)))
+    (cons (* 10 remainder) remainders)))
+
+(defun fractional-part-recuring-cycle-length (divisor)
+  (flet ((step-euclid (x) (partial-euclids (car x) divisor x)))
+    (do ((cycles (step-euclid (partial-euclids 10 divisor nil)) (step-euclid cycles))
+     (pos))
+    (pos (+ 1 pos))
+      (setf pos (position (car cycles) (cdr cycles))))))
+
+(defun problem-26 (&optional (number 1000))
+  (let* ((data (remove-if-not #'(lambda (x) (= 1 (gcd 10 x))) (range 2 number)))
+	 (results (mapcar #'(lambda (x) (list x (fractional-part-recuring-cycle-length x))) data))
+	 (sorted-results (sort results #'(lambda (x y) (> (nth 1 x) (nth 1 y))))))
+    (list :divisor (caar sorted-results) :length-of-cycle (cadar sorted-results))))

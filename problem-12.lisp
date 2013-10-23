@@ -1,0 +1,22 @@
+(in-package :project-euler)
+(defun triangle-num-factors (number)
+  (if (oddp number)
+      (list (/ (+ 1 number) 2) number)
+      (list (/ number 2) (+ 1 number))))
+
+(defun num-divisors-for-triangle-num (number)
+  (let ((triangle-num-factors (triangle-num-factors number))
+	(table (make-hash-table)))
+    (flet ((inc-hash-element (element)
+	     (unless (gethash element table)
+	       (setf (gethash element table) 0))
+	     (incf (gethash element table))))
+      (loop for factor in triangle-num-factors do (mapcar #'inc-hash-element (ifactor factor)))
+      (reduce #'* (loop for v being the hash-values in table collect (+ 1 v))))))
+
+(defun problem-12 (&optional (requested-number-divisors 500))
+  (triangle-number (first
+		    (loop for num = 2 then (+ num 1)
+		       for number-divisors = (num-divisors-for-triangle-num num) then (num-divisors-for-triangle-num num)
+		       until (>= number-divisors requested-number-divisors)
+		       finally (return (list num number-divisors))))))

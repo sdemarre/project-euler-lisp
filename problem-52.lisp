@@ -1,0 +1,13 @@
+(in-package :project-euler)
+(defun multiples-contain-same-digits-p (number)
+  (let* ((one   (sort (number-digits number) #'<))
+	 (two   (sort (number-digits (* 2 number)) #'<))
+	 (three (sort (number-digits (* 3 number)) #'<))
+	 (four  (sort (number-digits (* 4 number)) #'<))
+	 (five  (sort (number-digits (* 5 number)) #'<))
+	 (six   (sort (number-digits (* 6 number)) #'<)))
+    (and (equalp one two) (equalp two three) (equalp three four) (equalp four five) (equalp five six))))
+
+(defun problem-52 ()
+  (do ((number 1 (+ 1 number)))
+      ((multiples-contain-same-digits-p number) number)))

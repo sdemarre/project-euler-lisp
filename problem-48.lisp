@@ -1,0 +1,13 @@
+(in-package :project-euler)
+(defun lowest-digits-expt (base expt num-digits)
+  (let ((result 1)
+	(mod-factor (expt 10 num-digits)))
+    (dotimes (i expt)
+      (setf result (mod (* result base) mod-factor)))
+    result))
+
+(defun problem-48 (&optional (num-digits 10))
+  (let ((sum 0))
+    (dotimes (i 1000)
+      (setf sum (+ sum (lowest-digits-expt (+ i 1) (+ i 1) num-digits))))
+    (mod sum (expt 10 10))))

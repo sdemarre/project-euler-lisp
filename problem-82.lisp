@@ -1,0 +1,136 @@
+(in-package :project-euler)
+
+
+(defclass* directed-weighted-edge (weighted-edge-mixin graph-container-directed-edge)
+  ())
+
+(defclass* heapable-node ()
+  ((name nil ia)
+   (heap-node nil ia)
+   (distance most-positive-fixnum ia)))
+
+
+(defun problem-82-graph ()
+  (let ((g (make-container 'graph-container
+			   :default-edge-type :directed
+			   :directed-edge-class 'directed-weighted-edge))
+	;;	(data (read-problem-n-data 82)))
+	(data  #(#(131	673	234	103	18)
+  		 #(201	96	342	965	150)
+  		 #(630	803	746	422	111)
+  		 #(537	699	497	121	956)
+  		 #(805	732	524	37	331))))
+    (let ((number-rows (length data))
+	  (number-columns (length (aref data 0))))
+      (let ((heapable-nodes (make-array (list number-rows number-columns) :initial-element nil)))
+	(labels ((data-elt (row column) (aref (aref data row) column))
+		 (vertex-symbol (row column) 
+		   (sif (aref heapable-nodes row column)
+			it
+			(setf it (make-instance 'heapable-node :name (format nil "node-~a-~a" row column)))))
+		 (add-edge-if-possible (source-row source-column dest-row dest-column)
+		   (when (and (>= source-row 0) (>= source-column 0)
+			      (< source-row number-rows) (< source-column number-columns))
+		     (add-edge-between-vertexes g (vertex-symbol source-row source-column) 
+						(vertex-symbol dest-row dest-column) :edge-type :directed :weight (data-elt dest-row dest-column)))))
+	  (let ((source (make-instance 'heapable-node :name "source"))
+		(drain (make-instance 'heapable-node :name "drain")))	    
+	    (add-vertex g source)
+	    (add-vertex g drain)
+	    (loop for row from 0 below number-rows do
+		 (loop for column from 0 below number-columns do
+		      (cond ((= column 0) 
+			     (add-edge-between-vertexes g source (vertex-symbol row column) 
+							:edge-type :directed :weight (data-elt row column)))
+			    ((= column (1- number-columns)) 
+			     (add-edge-between-vertexes g (vertex-symbol row column) drain :edge-type :directed :weight 0)))
+		      (add-edge-if-possible row (1- column) row column)
+		      (add-edge-if-possible (1- row) column row column)
+		      (add-edge-if-possible (1+ row) column row column)))))))
+    g))
+
+      
+			
+(defun sum-weights (graph source drain previous-hash)
+  (let ((sum 0)
+	(current-path (list drain)))
+    (while (not (eq (first current-path) source))
+      (push (gethash (first current-path) previous-hash) current-path)
+      ;(format t "adding edge between ~a and ~a, weight is ~a~%" (first current-path) (second current-path)
+      ;     (weight (find-edge-between-vertexes graph (first current-path) (second current-path))))
+      (incf sum (weight (find-edge-between-vertexes graph (first current-path) (second current-path)))))
+    (values sum current-path)))
+  
+    
+(defun shortest-path-dijkstra (graph source-node)
+  (let ((distances (make-hash-table))
+	(previouses (make-hash-table))
+	(q (make-hash-table)))
+    (macrolet ((distance (vertex) `(gethash ,vertex distances))
+	       (previous (vertex) `(gethash ,vertex previouses)))
+      (flet ((put-in-q (vertex) (setf (gethash vertex q) t))
+	     (remove-from-q (vertex) (remhash vertex q))
+	     (is-q-empty () (zerop (hash-table-count q)))
+	     (elements-of-q () (loop for key being the hash-keys of q collect key))
+	     (is-element-of-q (vertex) (second (multiple-value-list (gethash vertex q)))))
+	(iterate-vertexes graph #'(lambda (vertex)
+				    (setf (distance vertex) most-positive-fixnum)
+				    (setf (previous vertex) nil)
+				    (put-in-q vertex)))
+	(setf (distance source-node) 0)
+	(while (not (is-q-empty))
+	  (let ((u (minimize #'< (elements-of-q) :key #'(lambda (vertex) (distance vertex)))))
+	    ;(format t "removing element from Q: ~a~%" u)
+	    (remove-from-q u)
+	    (loop for v in (child-vertexes u) when (is-element-of-q v) do
+		 (let ((new-distance (+ (distance u) (weight (find-edge-between-vertexes graph u v)))))
+		   (when (< new-distance (distance v))
+		     (setf (distance v) new-distance)
+		     (setf (previous v) u))))))))
+    previouses))
+
+
+(defun shortest-path-dijkstra-heap (graph source-node)
+  (let ((distances (make-hash-table))
+	 (previouses (make-hash-table)))
+    (macrolet ((distance (vertex) `(gethash ,vertex distances))
+	       (previous (vertex) `(gethash ,vertex previouses)))
+      (let ((q (make-instance 'heap-container :sorter #'(lambda (x y) (< (distance x) (distance y))))))
+	(iterate-vertexes graph #'(lambda (vertex)
+				    (setf (distance vertex) most-positive-fixnum)
+				    (setf (previous vertex) nil)
+				    (setf (color vertex) :red)
+				    (let ((node (make-node-for-container q vertex)))
+				      (insert-item q node)
+				      (setf (heap-node (element vertex)) node))))
+	(setf (distance source-node) 0)
+	(heapify q (heap-node (element source-node)))
+	(while (not (zerop (size q)))
+	  (let ((u (delete-biggest-item q)))
+	    (format t "removed ~a from heap, its weight is ~a~%" u (distance u))
+	    (setf (color u) :blue)
+	    (loop for v in (child-vertexes u) when (eq (color v) :red) do
+		 (let ((new-distance (+ (distance u) (weight (find-edge-between-vertexes graph u v)))))
+		   (when (< new-distance (distance v))
+		     (setf (distance v) new-distance)
+		     (cl-containers::heapify-for-new-weight q (heap-node (element v)))
+		     (setf (previous v) u))))))))
+    previouses))
+								   
+	       
+	       
+
+      
+(defun vertex-name-is-p (name-to-find)
+  (lambda (vertex) (string= (name (element vertex)) name-to-find)))
+(defun problem-82 ()
+  (format t "Creating graph~%")
+  (let ((g (problem-82-graph)))
+    (format t "Finding shortest path~%")
+    (let ((previouses (shortest-path-dijkstra-heap g (find-vertex-if g (vertex-name-is-p "source")))))
+      (format t "Computing path~%")
+      (sum-weights g (find-vertex-if g (vertex-name-is-p "source")) (find-vertex-if g (vertex-name-is-p "drain")) previouses))))
+
+
+(defmethod print-object ((object heapable-node) stream)
+  (format stream "heapable-node ~a" (name object)))

@@ -1,5 +1,5 @@
 (defpackage #:project-euler
-    (:use #:cl #:cl-graph #:metatilities #:anaphora #:iterate))
+    (:use #:cl #:cl-graph #:anaphora #:iterate))
 
 (in-package #:project-euler)
 

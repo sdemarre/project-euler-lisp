@@ -34,7 +34,7 @@
 
 (defun problem-68 ()
   (let ((max-result 0))
-    (cllib:with-permutations-swap (5-gon (vector 1 2 3 4 5 6 7 8 9 10))
+    (with-permutations-swap (5-gon (vector 1 2 3 4 5 6 7 8 9 10))
       (when (and (is-magical-5-gon-p 5-gon)
 		 (let ((digit-sum (sum-5-gon-digits 5-gon)))
 		   (and (= 16 (number-of-digits digit-sum))

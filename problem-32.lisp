@@ -33,6 +33,6 @@
 		
 (defun problem-32 ()
   (let ((products (make-hash-table)))
-    (cllib:with-permutations-swap (permutation #(1 2 3 4 5 6 7 8 9))
+    (with-permutations-swap (permutation #(1 2 3 4 5 6 7 8 9))
       (add-splits-to-set permutation products))
     (loop for product being the hash-keys of products summing product)))

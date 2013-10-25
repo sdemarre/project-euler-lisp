@@ -1,23 +1,8 @@
 (in-package :project-euler)
 
-(defun count-digits (number)
-  (1+ (floor (log number 10))))
-(defun power-10-mask (number)
-  (expt 10 (count-digits number)))
-(defun number-ends-with (number end-number)
-  (= (mod number (power-10-mask end-number)) end-number))
-(defun number-starts-with (number start-number)
-  (= (floor number (expt 10 (- (count-digits number) (count-digits start-number)))) start-number))
-(defun combine-numbers (n1 n2)
-  (+ (* n1 (power-10-mask n2)) n2))
-(defun all-number-combinations (numbers)
-  (loop for a on numbers append
-       (loop for b on (rest a) append
-	    (list (combine-numbers (first a) (first b)) (combine-numbers (first b) (first a))))))
-       
 (defun can-add-to-list (numbers new-number)
-  (and (every #'(lambda (n) (cllib:primep (combine-numbers n new-number))) numbers)
-       (every #'(lambda (n) (cllib:primep (combine-numbers new-number n))) numbers)))
+  (and (every #'(lambda (n) (is-prime-from-tab (combine-numbers n new-number))) numbers)
+       (every #'(lambda (n) (is-prime-from-tab (combine-numbers new-number n))) numbers)))
 
 (defun extend-p-60-list (numbers list-to-chose-from &optional (start-from 3))
   (let ((start-value (apply #'max  (cons start-from numbers))))
